@@ -16,74 +16,74 @@ function resetTasks() {
 	gulp.tasks = {};
 }
 
-describe('gulp-task-loader', function() {
-	afterEach(function() {
+describe('gulp-task-loader', function () {
+	afterEach(function () {
 		resetTasks();
 	});
 
-	describe('without any supplied options', function() {
-		beforeEach(function() {
+	describe('without any supplied options', function () {
+		beforeEach(function () {
 			require('../index.js')();
 		});
 
-		it('should use default options', function() {
+		it('should use default options', function () {
 			expect(callTask('default')).to.equal('default');
 		});
 	});
 
-	describe('can pass gulp and options to tasks', function() {
+	describe('can pass gulp and options to tasks', function () {
 		var options = {
 			dir: 'test/passingGulpAndOptionsToTasks',
 			foo: 'bar'
 		};
 
-		beforeEach(function() {
+		beforeEach(function () {
 			require('../index.js')(options);
 		});
 
-		it('should be invoked with reference to gulp', function() {
+		it('should be invoked with reference to gulp', function () {
 			var self = callTask('test');
 			expect(self).to.have.property('gulp');
 			expect(self.gulp).to.equal(gulp);
 		});
 
-		it('should contain options as opts', function() {
+		it('should contain options as opts', function () {
 			var self = callTask('test');
 			expect(self).to.have.property('opts');
 			expect(self.opts).to.have.keys(['dir', 'exts', 'foo']);
 		});
 	});
 
-	describe('without dependencies', function() {
-		beforeEach(function() {
+	describe('without dependencies', function () {
+		beforeEach(function () {
 			require('../index.js')('test/noDeps');
 		});
 
-		it('should return true', function() {
+		it('should return true', function () {
 			expect(callTask('noDeps')).to.equal('no dependencies');
 		});
 
-		it('should not have any dependencies', function() {
+		it('should not have any dependencies', function () {
 			expect(getTask('noDeps').dep).to.be.empty;
 		});
 	});
 
-	describe('with dependencies', function() {
-		beforeEach(function() {
+	describe('with dependencies', function () {
+		beforeEach(function () {
 			require('../index.js')('test/withDeps');
 		});
 
-		it('should return true', function() {
+		it('should return true', function () {
 			expect(callTask('withDeps')).to.equal('with deps');
 		});
 
-		it('should have dependencies', function() {
+		it('should have dependencies', function () {
 			expect(getTask('withDeps').dep).to.not.be.empty;
 		});
 	});
 
 	describe('load subtasks in nested folders', function () {
-		beforeEach(function() {
+		beforeEach(function () {
 			require('../index.js')('test/subtasks');
 		});
 
@@ -93,51 +93,60 @@ describe('gulp-task-loader', function() {
 			expect(getTask('annotate:docs:comment')).to.be.ok;
 		});
 	});
-
-	describe('filter non js files', function() {
-		it('should filter .jshintrc', function() {
+	describe('load tasks in a nested directory(i.e. gulp/tasks) ', function () {
+		beforeEach(function () {
+			require('../index.js')('test/nestedTasks/tasks');
+		});
+		it('Should load tasks with base directory being a nested directory and namespace them', function() {
+			expect(getTask('annotate:add')).to.be.ok;
+			expect(getTask('annotate:remove')).to.be.ok;
+			expect(getTask('annotate:docs:comment')).to.be.ok;
+		});
+	});
+	describe('filter non js files', function () {
+		it('should filter .jshintrc', function () {
 			expect(require('../index.js').bind(null, 'test/filterOutFiles')).to.not.throw();
 		});
 	});
 
-	describe('include extensions in require.extensions', function() {
-		describe('coffeescript', function() {
-			beforeEach(function() {
+	describe('include extensions in require.extensions', function () {
+		describe('coffeescript', function () {
+			beforeEach(function () {
 				require('coffee-script/register');
-				require('../index.js')({ dir: 'test/coffeeScript' });
+				require('../index.js')({dir: 'test/coffeeScript'});
 			});
 
-			it('should return true', function() {
+			it('should return true', function () {
 				expect(callTask('coffee')).to.be.true;
 			});
 
-			it('should have dependencies', function() {
+			it('should have dependencies', function () {
 				expect(getTask('coffee').dep).to.eql(['dep']);
 			});
 		});
 
-		describe('jscript and js', function() {
+		describe('jscript and js', function () {
 			var options = {
-					dir: 'test/includeRequireExtensions',
-					exts: ['.jscript', '.js']
-				};
+				dir: 'test/includeRequireExtensions',
+				exts: ['.jscript', '.js']
+			};
 
-			beforeEach(function() {
+			beforeEach(function () {
 				require('../index.js')(options);
 			});
 
-			it('task.js should return true', function() {
+			it('task.js should return true', function () {
 				expect(callTask('task')).to.equal('.js');
 			});
 
-			it('task2.jscript should also return true', function() {
+			it('task2.jscript should also return true', function () {
 				expect(callTask('task2')).to.equal('.jscript');
 			});
 		});
 	});
 
 	describe('subfolder tasks referenced by ./', function () {
-		beforeEach(function() {
+		beforeEach(function () {
 			require('../index.js')('./test/subtasks');
 		});
 
@@ -149,7 +158,7 @@ describe('gulp-task-loader', function() {
 	});
 
 	describe('subfolder tasks referenced with trailing /', function () {
-		beforeEach(function() {
+		beforeEach(function () {
 			require('../index.js')('./test/subtasks/');
 		});
 
