@@ -49,7 +49,7 @@ module.exports = function(options) {
 
 	function loadTask(parents, task) {
 		var modulePath = path.join(process.cwd(), opts.dir, parents.join(path.sep) || '', task);
-		var func = require(modulePath);
+		var func = require(modulePath).default;
 		var dependencies = func.dependencies || [];
 		var taskName = stripExtension(task);
 		var context = {
